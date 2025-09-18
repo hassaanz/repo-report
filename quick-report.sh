@@ -16,8 +16,8 @@
 set -euo pipefail
 
 # Configuration
-GITHUB_USER=${GITHUB_USER:-"USER"}
-GITHUB_REPO=${GITHUB_REPO:-"REPO"}
+GITHUB_USER=${GITHUB_USER:-"hassaanz"}
+GITHUB_REPO=${GITHUB_REPO:-"repo-report"}
 GITHUB_BRANCH=${GITHUB_BRANCH:-"main"}
 BASE_URL="https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}"
 

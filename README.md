@@ -25,13 +25,13 @@ gitHistoryReporter/
 
 ```bash
 # Basic usage - generates last week's report and uploads to default server
-curl -fsSL https://raw.githubusercontent.com/USER/REPO/main/quick-report.sh | bash
+curl -fsSL https://raw.githubusercontent.com/hassaanz/repo-report/main/quick-report.sh | bash
 
 # With custom options
-curl -fsSL https://raw.githubusercontent.com/USER/REPO/main/quick-report.sh | bash -s -- --preset last-month --verbose
+curl -fsSL https://raw.githubusercontent.com/hassaanz/repo-report/main/quick-report.sh | bash -s -- --preset last-month --verbose
 
 # Custom server and detailed report
-curl -fsSL https://raw.githubusercontent.com/USER/REPO/main/quick-report.sh | bash -s -- \
+curl -fsSL https://raw.githubusercontent.com/hassaanz/repo-report/main/quick-report.sh | bash -s -- \
   --preset last-week --detailed --server https://reports.company.com
 ```
 
@@ -61,7 +61,7 @@ The server will be available at http://localhost:3000 with a beautiful web inter
 
 ```bash
 # Option A: Use the one-command installer (recommended)
-curl -fsSL https://raw.githubusercontent.com/USER/REPO/main/quick-report.sh | bash
+curl -fsSL https://raw.githubusercontent.com/hassaanz/repo-report/main/quick-report.sh | bash
 
 # Option B: Generate and upload in one command (after cloning)
 ./scripts/generate-and-upload.sh --preset last-week --verbose
@@ -136,10 +136,10 @@ Zero-installation solution for instant report generation:
 **Usage:**
 ```bash
 # Basic usage
-curl -fsSL https://raw.githubusercontent.com/USER/REPO/main/quick-report.sh | bash
+curl -fsSL https://raw.githubusercontent.com/hassaanz/repo-report/main/quick-report.sh | bash
 
 # With options
-curl -fsSL https://raw.githubusercontent.com/USER/REPO/main/quick-report.sh | bash -s -- \
+curl -fsSL https://raw.githubusercontent.com/hassaanz/repo-report/main/quick-report.sh | bash -s -- \
   --preset last-month --detailed --server https://my-server.com
 ```
 
