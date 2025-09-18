@@ -306,15 +306,8 @@ build_upload_command() {
     cmd="$cmd --server \"$SERVER_URL\""
     [[ "$TTL" != "$DEFAULT_TTL" ]] && cmd="$cmd --ttl \"$TTL\""
 
-    # Ensure upload script always gets a verbosity flag
-    if [[ "$VERBOSE" = "true" ]]; then
-        cmd="$cmd --verbose"
-    elif [[ "$QUIET" = "true" ]]; then
-        cmd="$cmd --quiet"
-    else
-        # Default to verbose mode for compatibility, we'll suppress output at display level
-        cmd="$cmd --verbose"
-    fi
+    # Always use verbose mode for upload script but we'll control display
+    cmd="$cmd --verbose"
 
     echo "$cmd"
 }
@@ -330,7 +323,14 @@ generate_and_upload_report() {
     [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️  Upload command: $upload_cmd${NC}" >&2
 
     # Generate report and pipe to upload script
-    if REPORT_URL=$(eval "$report_cmd" | eval "$upload_cmd" 2>/dev/null); then
+    # Redirect stderr in non-verbose mode to suppress upload script logs
+    if [[ "$VERBOSE" = "true" ]]; then
+        REPORT_URL=$(eval "$report_cmd" | eval "$upload_cmd" | head -1)
+    else
+        REPORT_URL=$(eval "$report_cmd" | eval "$upload_cmd" 2>/dev/null | head -1)
+    fi
+
+    if [[ -n "$REPORT_URL" ]]; then
         log_success "Report generated and uploaded successfully!"
 
         if [[ "$QUIET" != "true" ]]; then
