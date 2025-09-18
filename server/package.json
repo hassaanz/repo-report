@@ -1,0 +1,31 @@
+{
+  "name": "git-history-report-server",
+  "version": "1.0.0",
+  "description": "Web server for generating and serving git history reports",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "bun --watch src/server.ts",
+    "build": "bun build src/server.ts --outdir dist --target bun",
+    "start": "bun dist/server.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/**/*.ts",
+    "test": "bun test",
+    "test:functionality": "bun run test-functionality.ts"
+  },
+  "dependencies": {
+    "fastify": "^4.24.3",
+    "@fastify/cors": "^8.4.0",
+    "@fastify/static": "^6.12.0",
+    "crypto": "^1.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.0",
+    "typescript": "^5.2.0",
+    "eslint": "^8.51.0",
+    "@typescript-eslint/eslint-plugin": "^6.7.0",
+    "@typescript-eslint/parser": "^6.7.0"
+  },
+  "keywords": ["git", "history", "report", "fastify", "typescript", "bun"],
+  "author": "",
+  "license": "MIT"
+}
