@@ -1,0 +1,15 @@
+# IDE files
+.idea/
+
+# Temporary debug files
+*_output.txt
+debug_output.txt
+upload_stderr.log
+
+# Downloaded test scripts
+github-upload.sh
+test-upload.sh
+debug-git-report.sh
+
+# Debug session output files
+fixed_*.txt
