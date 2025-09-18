@@ -323,11 +323,11 @@ generate_and_upload_report() {
     [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️  Upload command: $upload_cmd${NC}" >&2
 
     # Generate report and pipe to upload script
-    # Redirect stderr in non-verbose mode to suppress upload script logs
-    if [[ "$VERBOSE" = "true" ]]; then
-        REPORT_URL=$(eval "$report_cmd" | eval "$upload_cmd" | head -1)
-    else
+    # Only redirect stderr in quiet mode to suppress upload script logs
+    if [[ "$QUIET" = "true" ]]; then
         REPORT_URL=$(eval "$report_cmd" | eval "$upload_cmd" 2>/dev/null | head -1)
+    else
+        REPORT_URL=$(eval "$report_cmd" | eval "$upload_cmd" | head -1)
     fi
 
     if [[ -n "$REPORT_URL" ]]; then
