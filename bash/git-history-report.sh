@@ -227,7 +227,7 @@ build_git_command() {
 process_git_data() {
     local git_cmd=$(build_git_command)
 
-    eval "$git_cmd" | awk -F'|' '
+    eval "$git_cmd" | awk '
     BEGIN {
         # Initialize arrays
         total_added = 0
@@ -235,7 +235,7 @@ process_git_data() {
         commit_count = 0
     }
 
-    # Process commit headers
+    # Process commit headers (pipe-separated)
     /^[0-9]{4}-[0-9]{2}-[0-9]{2}/ {
         if (NR > 1 && current_date != "") {
             # Store previous commit data
@@ -249,23 +249,27 @@ process_git_data() {
             date_count++
         }
 
-        current_date = $1
-        current_author = $2
-        current_email = $3
-        current_message = $4
-        current_hash = $5
+        # Parse new commit (split by pipe)
+        split($0, commit_fields, "|")
+        current_date = commit_fields[1]
+        current_author = commit_fields[2]
+        current_email = commit_fields[3]
+        current_message = commit_fields[4]
+        current_hash = commit_fields[5]
         commit_added = 0
         commit_removed = 0
         commit_count++
     }
 
-    # Process file statistics
+    # Process file statistics (tab-separated)
     /^[0-9]+\t[0-9]+\t/ {
-        if (NF >= 3 && $1 ~ /^[0-9]+$/ && $2 ~ /^[0-9]+$/) {
-            commit_added += $1
-            commit_removed += $2
-            total_added += $1
-            total_removed += $2
+        # Split by tab to get added, removed, filename
+        split($0, stat_fields, "\t")
+        if (length(stat_fields) >= 3 && stat_fields[1] ~ /^[0-9]+$/ && stat_fields[2] ~ /^[0-9]+$/) {
+            commit_added += stat_fields[1]
+            commit_removed += stat_fields[2]
+            total_added += stat_fields[1]
+            total_removed += stat_fields[2]
         }
     }
 
