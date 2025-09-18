@@ -27,8 +27,14 @@ gitHistoryReporter/
 # Basic usage - generates last week's report and uploads to default server
 curl -fsSL https://raw.githubusercontent.com/hassaanz/repo-report/main/quick-report.sh | bash
 
-# With custom options
-curl -fsSL https://raw.githubusercontent.com/hassaanz/repo-report/main/quick-report.sh | bash -s -- --preset last-month --verbose
+# Verbose output - shows detailed progress and configuration
+curl -fsSL https://raw.githubusercontent.com/hassaanz/repo-report/main/quick-report.sh | bash -s -- --verbose
+
+# Detailed report with verbose output - includes commit-level breakdown
+curl -fsSL https://raw.githubusercontent.com/hassaanz/repo-report/main/quick-report.sh | bash -s -- --detailed --verbose
+
+# Custom preset with detailed report
+curl -fsSL https://raw.githubusercontent.com/hassaanz/repo-report/main/quick-report.sh | bash -s -- --preset last-month --detailed --verbose
 
 # Custom server and detailed report
 curl -fsSL https://raw.githubusercontent.com/hassaanz/repo-report/main/quick-report.sh | bash -s -- \
