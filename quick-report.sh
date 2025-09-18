@@ -227,7 +227,7 @@ check_prerequisites() {
         exit 1
     fi
 
-    log_info "All prerequisites satisfied"
+    log_success "All prerequisites satisfied"
 }
 
 # Create temporary directory
