@@ -103,7 +103,9 @@ log_success() {
 }
 
 log_info() {
-    [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️  $*${NC}" >&2
+    if [ "${VERBOSE:-false}" = "true" ]; then
+        echo -e "${BLUE}ℹ️  $*${NC}" >&2
+    fi
 }
 
 log_warning() {
@@ -303,8 +305,16 @@ build_upload_command() {
 
     cmd="$cmd --server \"$SERVER_URL\""
     [[ "$TTL" != "$DEFAULT_TTL" ]] && cmd="$cmd --ttl \"$TTL\""
-    [[ "$VERBOSE" = "true" ]] && cmd="$cmd --verbose"
-    [[ "$QUIET" = "true" ]] && cmd="$cmd --quiet"
+
+    # Ensure upload script always gets a verbosity flag
+    if [[ "$VERBOSE" = "true" ]]; then
+        cmd="$cmd --verbose"
+    elif [[ "$QUIET" = "true" ]]; then
+        cmd="$cmd --quiet"
+    else
+        # Default to verbose mode for compatibility, we'll suppress output at display level
+        cmd="$cmd --verbose"
+    fi
 
     echo "$cmd"
 }
@@ -320,7 +330,7 @@ generate_and_upload_report() {
     [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️  Upload command: $upload_cmd${NC}" >&2
 
     # Generate report and pipe to upload script
-    if REPORT_URL=$(eval "$report_cmd" | eval "$upload_cmd"); then
+    if REPORT_URL=$(eval "$report_cmd" | eval "$upload_cmd" 2>/dev/null); then
         log_success "Report generated and uploaded successfully!"
 
         if [[ "$QUIET" != "true" ]]; then
@@ -336,7 +346,6 @@ generate_and_upload_report() {
 
         # Output the URL as the final line (main result for scripts)
         echo "$REPORT_URL"
-
     else
         log_error "Failed to generate or upload report"
         exit 1
