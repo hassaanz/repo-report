@@ -93,27 +93,33 @@ ENVIRONMENT VARIABLES:
 EOF
 }
 
-# Logging functions
+# Logging functions - simplified to avoid flag issues
 log_error() {
-    [ "$QUIET" != "true" ] && echo -e "${RED}❌ $1${NC}" >&2
+    echo -e "${RED}❌ $1${NC}" >&2
 }
 
 log_success() {
-    [ "$QUIET" != "true" ] && echo -e "${GREEN}✅ $1${NC}" >&2
+    if [[ "${QUIET:-false}" != "true" ]]; then
+        echo -e "${GREEN}✅ $1${NC}" >&2
+    fi
 }
 
 log_info() {
-    if [ "${VERBOSE:-false}" = "true" ]; then
+    if [[ "${VERBOSE:-false}" = "true" ]]; then
         echo -e "${BLUE}ℹ️  $*${NC}" >&2
     fi
 }
 
 log_warning() {
-    [ "$QUIET" != "true" ] && echo -e "${YELLOW}⚠️  $1${NC}" >&2
+    if [[ "${QUIET:-false}" != "true" ]]; then
+        echo -e "${YELLOW}⚠️  $1${NC}" >&2
+    fi
 }
 
 log_step() {
-    [ "$QUIET" != "true" ] && echo -e "${PURPLE}🔄 $1${NC}" >&2
+    if [[ "${QUIET:-false}" != "true" ]]; then
+        echo -e "${PURPLE}🔄 $1${NC}" >&2
+    fi
 }
 
 
@@ -236,15 +242,15 @@ check_prerequisites() {
 # Create temporary directory
 setup_temp_dir() {
     TEMP_DIR=$(mktemp -d -t git-history-reporter.XXXXXX)
-    [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️  Created temporary directory: $TEMP_DIR${NC}" >&2
+    log_info "Created temporary directory: $TEMP_DIR"
 
     # Cleanup function
     cleanup_temp_dir() {
         if [[ "$KEEP_SCRIPTS" = "false" ]] && [[ -d "$TEMP_DIR" ]]; then
-            [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️  Cleaning up temporary directory: $TEMP_DIR${NC}" >&2
+            log_info "Cleaning up temporary directory: $TEMP_DIR"
             rm -rf "$TEMP_DIR"
         elif [[ "$KEEP_SCRIPTS" = "true" ]]; then
-            [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️  Scripts kept in: $TEMP_DIR${NC}" >&2
+            log_info "Scripts kept in: $TEMP_DIR"
         fi
     }
 
@@ -258,7 +264,7 @@ download_script() {
     local local_filename="$2"
     local url="$BASE_URL/$script_path"
 
-    [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️  Downloading $script_path...${NC}" >&2
+    log_info "Downloading $script_path..."
 
     if ! curl -fsSL "$url" -o "$TEMP_DIR/$local_filename"; then
         log_error "Failed to download $script_path from $url"
@@ -271,7 +277,7 @@ download_script() {
     fi
 
     chmod +x "$TEMP_DIR/$local_filename"
-    [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️  Downloaded and made executable: $local_filename${NC}" >&2
+    log_info "Downloaded and made executable: $local_filename"
 }
 
 # Download all required scripts
@@ -319,8 +325,8 @@ generate_and_upload_report() {
     local report_cmd=$(build_report_command)
     local upload_cmd=$(build_upload_command)
 
-    [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️  Report command: $report_cmd${NC}" >&2
-    [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️  Upload command: $upload_cmd${NC}" >&2
+    log_info "Report command: $report_cmd"
+    log_info "Upload command: $upload_cmd"
 
     # Generate report and pipe to upload script
     # Only redirect stderr in quiet mode to suppress upload script logs
@@ -354,18 +360,16 @@ generate_and_upload_report() {
 
 # Show configuration
 show_config() {
-    if [[ "$VERBOSE" = "true" ]]; then
-        [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️  Configuration:${NC}" >&2
-        [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️    GitHub: $GITHUB_USER/$GITHUB_REPO ($GITHUB_BRANCH)${NC}" >&2
-        [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️    Server: $SERVER_URL${NC}" >&2
-        [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️    Preset: $PRESET${NC}" >&2
-        [[ -n "$SINCE" ]] && [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️    Since: $SINCE${NC}" >&2
-        [[ -n "$UNTIL" ]] && [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️    Until: $UNTIL${NC}" >&2
-        [[ -n "$AUTHOR" ]] && [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️    Author: $AUTHOR${NC}" >&2
-        [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️    Format: $FORMAT${NC}" >&2
-        [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️    Detailed: $DETAILED${NC}" >&2
-        [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️    TTL: $TTL seconds${NC}" >&2
-    fi
+    log_info "Configuration:"
+    log_info "  GitHub: $GITHUB_USER/$GITHUB_REPO ($GITHUB_BRANCH)"
+    log_info "  Server: $SERVER_URL"
+    log_info "  Preset: $PRESET"
+    [[ -n "$SINCE" ]] && log_info "  Since: $SINCE"
+    [[ -n "$UNTIL" ]] && log_info "  Until: $UNTIL"
+    [[ -n "$AUTHOR" ]] && log_info "  Author: $AUTHOR"
+    log_info "  Format: $FORMAT"
+    log_info "  Detailed: $DETAILED"
+    log_info "  TTL: $TTL seconds"
 }
 
 # Main execution
