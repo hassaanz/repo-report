@@ -322,17 +322,19 @@ generate_and_upload_report() {
     if REPORT_URL=$(eval "$report_cmd" | eval "$upload_cmd"); then
         log_success "Report generated and uploaded successfully!"
 
-        # Output the URL (main result)
-        echo "$REPORT_URL"
-
         if [[ "$QUIET" != "true" ]]; then
             echo ""
             log_success "🎉 Your git history report is ready!"
+            echo ""
             echo -e "${CYAN}📊 Report URL: $REPORT_URL${NC}"
             echo ""
-            log_info "💡 Tip: Bookmark this URL to share with your team"
-            log_info "⏰ This report will expire automatically for security"
+            log_success "💡 Tip: Bookmark this URL to share with your team"
+            log_success "⏰ This report will expire automatically for security"
+            echo ""
         fi
+
+        # Output the URL as the final line (main result for scripts)
+        echo "$REPORT_URL"
 
     else
         log_error "Failed to generate or upload report"
