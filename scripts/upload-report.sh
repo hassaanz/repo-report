@@ -169,7 +169,7 @@ upload_to_server() {
     JSON_PAYLOAD="{\"content\": $ESCAPED_CONTENT, \"ttl\": $TTL}"
 
     # Upload to server
-    RESPONSE=$(curl -s -w "%{http_code}" -o response.tmp -X POST "$SERVER_URL/api/reports" \
+    RESPONSE=$(curl -s -w "%{http_code}" -o response.tmp --max-time 30 -X POST "$SERVER_URL/api/reports" \
         -H "Content-Type: application/json" \
         -d "$JSON_PAYLOAD" 2>/dev/null)
 
@@ -215,7 +215,7 @@ upload_to_server() {
 test_server() {
     log_info "Testing server connectivity..."
 
-    if curl -s -f "$SERVER_URL/health" > /dev/null; then
+    if curl -s -f --max-time 5 "$SERVER_URL/health" > /dev/null; then
         log_info "Server is accessible and healthy"
     else
         log_warning "Server health check failed, but continuing anyway..."

@@ -22,7 +22,7 @@ GITHUB_BRANCH=${GITHUB_BRANCH:-"main"}
 BASE_URL="https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}"
 
 # Default server URL (can be overridden)
-DEFAULT_SERVER_URL="https://reports.company.com"
+DEFAULT_SERVER_URL="http://localhost:3001"
 SERVER_URL=${GIT_REPORT_SERVER_URL:-$DEFAULT_SERVER_URL}
 
 # Default report options
@@ -58,7 +58,7 @@ OPTIONS:
     -d, --detailed          Show detailed commit breakdown
     -f, --format FORMAT     Output format: html, markdown, ascii (default: html)
     -t, --ttl SECONDS       Time to live in seconds (default: 3600, max: 86400)
-    --server URL            Server URL (default: \$GIT_REPORT_SERVER_URL or $DEFAULT_SERVER_URL)
+    --server URL            Server URL (default: \$GIT_REPORT_SERVER_URL or http://localhost:3001)
     -v, --verbose           Show detailed output
     -q, --quiet             Suppress all output except the final URL
     -h, --help              Show this help message
