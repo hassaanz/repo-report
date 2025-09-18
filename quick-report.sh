@@ -103,7 +103,7 @@ log_success() {
 }
 
 log_info() {
-    [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️  $1${NC}" >&2
+    [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️  $*${NC}" >&2
 }
 
 log_warning() {
@@ -113,6 +113,7 @@ log_warning() {
 log_step() {
     [ "$QUIET" != "true" ] && echo -e "${PURPLE}🔄 $1${NC}" >&2
 }
+
 
 # Initialize variables
 init_vars() {
@@ -233,15 +234,15 @@ check_prerequisites() {
 # Create temporary directory
 setup_temp_dir() {
     TEMP_DIR=$(mktemp -d -t git-history-reporter.XXXXXX)
-    log_info "Created temporary directory: $TEMP_DIR"
+    [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️  Created temporary directory: $TEMP_DIR${NC}" >&2
 
     # Cleanup function
     cleanup_temp_dir() {
         if [[ "$KEEP_SCRIPTS" = "false" ]] && [[ -d "$TEMP_DIR" ]]; then
-            log_info "Cleaning up temporary directory: $TEMP_DIR"
+            [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️  Cleaning up temporary directory: $TEMP_DIR${NC}" >&2
             rm -rf "$TEMP_DIR"
         elif [[ "$KEEP_SCRIPTS" = "true" ]]; then
-            log_info "Scripts kept in: $TEMP_DIR"
+            [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️  Scripts kept in: $TEMP_DIR${NC}" >&2
         fi
     }
 
@@ -255,7 +256,7 @@ download_script() {
     local local_filename="$2"
     local url="$BASE_URL/$script_path"
 
-    log_info "Downloading $script_path..."
+    [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️  Downloading $script_path...${NC}" >&2
 
     if ! curl -fsSL "$url" -o "$TEMP_DIR/$local_filename"; then
         log_error "Failed to download $script_path from $url"
@@ -268,7 +269,7 @@ download_script() {
     fi
 
     chmod +x "$TEMP_DIR/$local_filename"
-    log_info "Downloaded and made executable: $local_filename"
+    [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️  Downloaded and made executable: $local_filename${NC}" >&2
 }
 
 # Download all required scripts
@@ -315,8 +316,8 @@ generate_and_upload_report() {
     local report_cmd=$(build_report_command)
     local upload_cmd=$(build_upload_command)
 
-    log_info "Report command: $report_cmd"
-    log_info "Upload command: $upload_cmd"
+    [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️  Report command: $report_cmd${NC}" >&2
+    [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️  Upload command: $upload_cmd${NC}" >&2
 
     # Generate report and pipe to upload script
     if REPORT_URL=$(eval "$report_cmd" | eval "$upload_cmd"); then
@@ -345,16 +346,16 @@ generate_and_upload_report() {
 # Show configuration
 show_config() {
     if [[ "$VERBOSE" = "true" ]]; then
-        log_info "Configuration:"
-        log_info "  GitHub: $GITHUB_USER/$GITHUB_REPO ($GITHUB_BRANCH)"
-        log_info "  Server: $SERVER_URL"
-        log_info "  Preset: $PRESET"
-        [[ -n "$SINCE" ]] && log_info "  Since: $SINCE"
-        [[ -n "$UNTIL" ]] && log_info "  Until: $UNTIL"
-        [[ -n "$AUTHOR" ]] && log_info "  Author: $AUTHOR"
-        log_info "  Format: $FORMAT"
-        log_info "  Detailed: $DETAILED"
-        log_info "  TTL: $TTL seconds"
+        [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️  Configuration:${NC}" >&2
+        [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️    GitHub: $GITHUB_USER/$GITHUB_REPO ($GITHUB_BRANCH)${NC}" >&2
+        [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️    Server: $SERVER_URL${NC}" >&2
+        [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️    Preset: $PRESET${NC}" >&2
+        [[ -n "$SINCE" ]] && [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️    Since: $SINCE${NC}" >&2
+        [[ -n "$UNTIL" ]] && [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️    Until: $UNTIL${NC}" >&2
+        [[ -n "$AUTHOR" ]] && [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️    Author: $AUTHOR${NC}" >&2
+        [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️    Format: $FORMAT${NC}" >&2
+        [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️    Detailed: $DETAILED${NC}" >&2
+        [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️    TTL: $TTL seconds${NC}" >&2
     fi
 }
 
