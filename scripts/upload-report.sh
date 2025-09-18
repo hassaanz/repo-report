@@ -12,6 +12,7 @@ set -euo pipefail
 SERVER_URL=${GIT_REPORT_SERVER_URL:-"http://localhost:3001"}
 DEFAULT_TTL=3600  # 1 hour
 VERBOSE=false
+QUIET=false
 
 # Colors for output
 RED='\033[0;31m'
@@ -76,7 +77,9 @@ log_success() {
 }
 
 log_info() {
-    [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️  $1${NC}" >&2
+    if [ "${VERBOSE:-false}" = "true" ]; then
+        echo -e "${BLUE}ℹ️  $1${NC}" >&2
+    fi
 }
 
 log_warning() {

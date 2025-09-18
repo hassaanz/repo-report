@@ -112,7 +112,9 @@ log_success() {
 }
 
 log_info() {
-    [ "$VERBOSE" = "true" ] && echo -e "${BLUE}ℹ️  $1${NC}" >&2
+    if [ "${VERBOSE:-false}" = "true" ]; then
+        echo -e "${BLUE}ℹ️  $1${NC}" >&2
+    fi
 }
 
 log_warning() {
@@ -294,7 +296,6 @@ generate_report() {
 
     local git_cmd=$(build_git_command)
     log_info "Command: $git_cmd"
-
     # Execute git report generation
     if ! REPORT_CONTENT=$(eval "$git_cmd" 2>/dev/null); then
         log_error "Failed to generate git history report"
@@ -345,8 +346,12 @@ upload_report() {
 
     [[ -n "$SERVER_URL" ]] && upload_cmd="$upload_cmd --server \"$SERVER_URL\""
     [[ "$TTL" != "$DEFAULT_TTL" ]] && upload_cmd="$upload_cmd --ttl \"$TTL\""
-    [[ "$VERBOSE" = "true" ]] && upload_cmd="$upload_cmd --verbose"
-    [[ "$QUIET" = "true" ]] && upload_cmd="$upload_cmd --quiet"
+    if [[ "$VERBOSE" = "true" ]]; then
+        upload_cmd="$upload_cmd --verbose"
+    elif [[ "$QUIET" = "true" ]]; then
+        upload_cmd="$upload_cmd --quiet"
+    fi
+    # Normal mode: don't add any verbosity flags, let upload script use defaults
 
     log_info "Upload command: $upload_cmd"
 
