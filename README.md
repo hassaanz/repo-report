@@ -15,10 +15,37 @@ gitHistoryReporter/
 ├── scripts/                       # Integration scripts
 │   ├── upload-report.sh          # Upload reports to server
 │   └── generate-and-upload.sh    # Generate and upload in one command
+├── quick-report.sh               # One-command installer and report generator
 └── README.md                      # This file
 ```
 
-## 🚀 Quick Start
+## ⚡ One-Command Quick Start
+
+**Generate and share a git history report instantly without downloading anything:**
+
+```bash
+# Basic usage - generates last week's report and uploads to default server
+curl -fsSL https://raw.githubusercontent.com/USER/REPO/main/quick-report.sh | bash
+
+# With custom options
+curl -fsSL https://raw.githubusercontent.com/USER/REPO/main/quick-report.sh | bash -s -- --preset last-month --verbose
+
+# Custom server and detailed report
+curl -fsSL https://raw.githubusercontent.com/USER/REPO/main/quick-report.sh | bash -s -- \
+  --preset last-week --detailed --server https://reports.company.com
+```
+
+**That's it!** The script will automatically:
+- 🔽 Download the necessary scripts from GitHub
+- 📊 Generate a beautiful HTML report for your repository
+- 🌐 Upload it to a server and return a shareable URL
+- 🧹 Clean up temporary files
+
+---
+
+## 🚀 Full Installation Quick Start
+
+If you want to set up the complete system locally:
 
 ### 1. Start the Server
 
@@ -33,14 +60,17 @@ The server will be available at http://localhost:3000 with a beautiful web inter
 ### 2. Generate and Share a Report
 
 ```bash
-# Option A: Generate and upload in one command
+# Option A: Use the one-command installer (recommended)
+curl -fsSL https://raw.githubusercontent.com/USER/REPO/main/quick-report.sh | bash
+
+# Option B: Generate and upload in one command (after cloning)
 ./scripts/generate-and-upload.sh --preset last-week --verbose
 
-# Option B: Generate, then upload separately
+# Option C: Generate, then upload separately
 ./bash/git-history-report.sh --preset last-week --format html > report.html
 cat report.html | ./scripts/upload-report.sh
 
-# Option C: Use the web interface
+# Option D: Use the web interface
 # Visit http://localhost:3000 for full documentation and examples
 ```
 
@@ -90,6 +120,28 @@ Production-ready bash scripts for automation:
 - Automatically uploads to server
 - Supports all report generation options
 - Dry-run mode for testing
+
+### ⚡ One-Command Installer (`quick-report.sh`)
+
+Zero-installation solution for instant report generation:
+
+#### `quick-report.sh` - One-Command Installer & Report Generator
+- **Zero Setup Required**: Run directly from GitHub via curl
+- **Automatic Downloads**: Fetches necessary scripts on-demand
+- **Full Feature Support**: All git-history-report.sh and upload options
+- **Clean Operation**: Automatic cleanup of temporary files
+- **Environment Flexible**: Configurable GitHub repo, server URLs, and options
+- **Production Ready**: Comprehensive error handling and progress reporting
+
+**Usage:**
+```bash
+# Basic usage
+curl -fsSL https://raw.githubusercontent.com/USER/REPO/main/quick-report.sh | bash
+
+# With options
+curl -fsSL https://raw.githubusercontent.com/USER/REPO/main/quick-report.sh | bash -s -- \
+  --preset last-month --detailed --server https://my-server.com
+```
 
 ## 📖 Usage Examples
 
