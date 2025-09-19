@@ -28,6 +28,7 @@ show_help() {
 Git History Report Uploader
 
 Accepts HTML content via stdin and uploads it to the Git History Report Server.
+Also provides a badge URL for GitHub README integration.
 
 USAGE:
     cat report.html | $0 [OPTIONS]
@@ -54,6 +55,11 @@ EXAMPLES:
     # Use custom server
     export GIT_REPORT_SERVER_URL="https://reports.company.com"
     cat report.html | $0
+
+    # Get badge URL for GitHub README
+    URL=\$(cat report.html | $0 --quiet)
+    HASH=\$(echo "\$URL" | sed 's/.*\\/r\\///')
+    echo "Badge: \${URL%/r/*}/api/reports/\$HASH/badge"
 
 ENVIRONMENT VARIABLES:
     GIT_REPORT_SERVER_URL   Default server URL (overrides built-in default)
@@ -192,9 +198,18 @@ upload_to_server() {
         log_info "Report Hash: $REPORT_HASH"
         log_info "Expires: $EXPIRES_DATE"
 
-        # Output the full URL (this is the main output)
+        # Output the full URLs (this is the main output)
         FULL_URL="$SERVER_URL$REPORT_URL"
+        BADGE_URL="$SERVER_URL/api/reports/$REPORT_HASH/badge"
+
         echo "$FULL_URL"
+
+        # Show badge URL in verbose mode or as info
+        if [ "$VERBOSE" = "true" ]; then
+            log_info "Badge URL: $BADGE_URL"
+        elif [ "$QUIET" != "true" ]; then
+            echo -e "${CYAN}🏷️  Badge: $BADGE_URL${NC}" >&2
+        fi
 
     elif [ "$HTTP_CODE" = "400" ]; then
         ERROR_MSG=$(cat response.tmp | jq -r '.message // "Bad request"')

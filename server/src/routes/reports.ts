@@ -2,10 +2,13 @@ import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import type { CreateReportRequest, CreateReportResponse } from '@/types/report';
 import { ReportService } from '@/services/reportService';
 import { IndexService } from '@/services/indexService';
+import { BadgeService } from '@/services/badgeService';
+import { readFile } from 'fs/promises';
 
 export async function reportRoutes(fastify: FastifyInstance) {
   const reportService = new ReportService();
   const indexService = new IndexService();
+  const badgeService = new BadgeService();
 
   // Index page route
   fastify.get('/', async (request: FastifyRequest, reply: FastifyReply) => {
@@ -167,6 +170,61 @@ export async function reportRoutes(fastify: FastifyInstance) {
       return reply.status(500).send({
         error: 'INTERNAL_ERROR',
         message: 'Failed to retrieve report metadata'
+      });
+    }
+  });
+
+  // Generate and serve badge image for a report
+  fastify.get<{
+    Params: { reportHash: string };
+  }>('/api/reports/:reportHash/badge', async (request: FastifyRequest<{ Params: { reportHash: string } }>, reply: FastifyReply) => {
+    try {
+      const { reportHash } = request.params;
+
+      // Validate hash format
+      if (!reportHash || !/^[a-f0-9]{32}$/i.test(reportHash)) {
+        return reply.status(400).send({
+          error: 'INVALID_HASH',
+          message: 'Invalid report hash format'
+        });
+      }
+
+      // Check if report exists
+      const reportExists = await reportService.reportExists(reportHash);
+      if (!reportExists) {
+        return reply.status(404).send({
+          error: 'REPORT_NOT_FOUND',
+          message: 'Report not found or has expired'
+        });
+      }
+
+      // Get the report content
+      const content = await reportService.getReport(reportHash);
+      if (!content) {
+        return reply.status(404).send({
+          error: 'REPORT_NOT_FOUND',
+          message: 'Report content not found'
+        });
+      }
+
+      // Generate badge image
+      const badgeFilename = await badgeService.generateBadgeImage(reportHash, content);
+      const badgeImagePath = badgeService.getBadgeImagePath(badgeFilename);
+
+      // Read the image file
+      const imageBuffer = await readFile(badgeImagePath);
+
+      // Set appropriate headers for PNG image
+      reply.header('Content-Type', 'image/png');
+      reply.header('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+      reply.header('Content-Length', imageBuffer.length);
+
+      return reply.send(imageBuffer);
+    } catch (error) {
+      console.error('Error generating badge:', error);
+      return reply.status(500).send({
+        error: 'INTERNAL_ERROR',
+        message: 'Failed to generate badge image'
       });
     }
   });

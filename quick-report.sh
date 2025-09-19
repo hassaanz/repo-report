@@ -339,14 +339,20 @@ generate_and_upload_report() {
     if [[ -n "$REPORT_URL" ]]; then
         log_success "Report generated and uploaded successfully!"
 
+        # Extract report hash for badge URL
+        REPORT_HASH=$(echo "$REPORT_URL" | sed 's/.*\/r\///')
+        BADGE_URL="${REPORT_URL%/r/*}/api/reports/$REPORT_HASH/badge"
+
         if [[ "$QUIET" != "true" ]]; then
             echo ""
             log_success "🎉 Your git history report is ready!"
             echo ""
             echo -e "${CYAN}📊 Report URL: $REPORT_URL${NC}"
+            echo -e "${CYAN}🏷️  Badge URL: $BADGE_URL${NC}"
             echo ""
-            log_success "💡 Tip: Bookmark this URL to share with your team"
-            log_success "⏰ This report will expire automatically for security"
+            log_success "💡 Tip: Use the badge URL in your GitHub README!"
+            echo -e "${BLUE}ℹ️  Markdown: ![Git Activity]($BADGE_URL)${NC}"
+            log_success "⏰ Both URLs will expire automatically for security"
             echo ""
         fi
 

@@ -11,11 +11,13 @@ import {
 
 export class ReportService {
   private reportsDir: string;
+  private badgesDir: string;
   private metadata: Map<string, ReportMetadata> = new Map();
   private defaultTTL = 3600; // 1 hour in seconds
 
-  constructor(reportsDir: string = './reports') {
+  constructor(reportsDir: string = './reports', badgesDir: string = './badges') {
     this.reportsDir = reportsDir;
+    this.badgesDir = badgesDir;
     this.startCleanupInterval();
   }
 
@@ -115,7 +117,7 @@ export class ReportService {
   }
 
   /**
-   * Delete a specific report
+   * Delete a specific report and its associated badge images
    */
   async deleteReport(reportHash: string): Promise<boolean> {
     const metadata = this.metadata.get(reportHash);
@@ -132,8 +134,31 @@ export class ReportService {
       // File might already be deleted, that's ok
     }
 
+    // Clean up associated badge images
+    await this.deleteBadgeImages(reportHash);
+
     this.metadata.delete(reportHash);
     return true;
+  }
+
+  /**
+   * Delete badge images associated with a report
+   */
+  private async deleteBadgeImages(reportHash: string): Promise<void> {
+    try {
+      const files = await readdir(this.badgesDir);
+      const badgeFiles = files.filter(file => file.startsWith(`${reportHash}_`) && file.endsWith('.png'));
+
+      for (const badgeFile of badgeFiles) {
+        try {
+          await unlink(join(this.badgesDir, badgeFile));
+        } catch (error) {
+          // Badge file might already be deleted, that's ok
+        }
+      }
+    } catch (error) {
+      // Badges directory might not exist, that's ok
+    }
   }
 
   /**

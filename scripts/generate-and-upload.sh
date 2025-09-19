@@ -359,6 +359,23 @@ upload_report() {
     if REPORT_URL=$(echo "$REPORT_CONTENT" | eval "$upload_cmd"); then
         log_success "Report uploaded successfully!"
 
+        # Extract report hash for badge URL
+        REPORT_HASH=$(echo "$REPORT_URL" | sed 's/.*\/r\///')
+        BADGE_URL="${REPORT_URL%/r/*}/api/reports/$REPORT_HASH/badge"
+
+        # Show additional info in non-quiet mode
+        if [[ "$QUIET" != "true" ]]; then
+            echo "" >&2
+            log_success "🎉 Your git history report is ready!" >&2
+            echo "" >&2
+            echo -e "${CYAN}📊 Report URL: $REPORT_URL${NC}" >&2
+            echo -e "${CYAN}🏷️  Badge URL: $BADGE_URL${NC}" >&2
+            echo "" >&2
+            log_success "💡 Tip: Use the badge URL in your GitHub README!" >&2
+            echo -e "${BLUE}ℹ️  Markdown: ![Git Activity]($BADGE_URL)${NC}" >&2
+            echo "" >&2
+        fi
+
         # Output the URL (main result)
         echo "$REPORT_URL"
     else
