@@ -359,9 +359,12 @@ upload_report() {
     if REPORT_URL=$(echo "$REPORT_CONTENT" | eval "$upload_cmd"); then
         log_success "Report uploaded successfully!"
 
-        # Extract report hash for badge URL
+        # Extract report hash for badge URLs
         REPORT_HASH=$(echo "$REPORT_URL" | sed 's/.*\/r\///')
-        BADGE_URL="${REPORT_URL%/r/*}/api/reports/$REPORT_HASH/badge"
+        BASE_URL="${REPORT_URL%/r/*}/api/reports/$REPORT_HASH/badge"
+        BADGE_DEFAULT="$BASE_URL"
+        BADGE_WEEKLY="$BASE_URL/weekly"
+        BADGE_MONTHLY="$BASE_URL/monthly"
 
         # Show additional info in non-quiet mode
         if [[ "$QUIET" != "true" ]]; then
@@ -369,10 +372,15 @@ upload_report() {
             log_success "🎉 Your git history report is ready!" >&2
             echo "" >&2
             echo -e "${CYAN}📊 Report URL: $REPORT_URL${NC}" >&2
-            echo -e "${CYAN}🏷️  Badge URL: $BADGE_URL${NC}" >&2
             echo "" >&2
-            log_success "💡 Tip: Use the badge URL in your GitHub README!" >&2
-            echo -e "${BLUE}ℹ️  Markdown: ![Git Activity]($BADGE_URL)${NC}" >&2
+            echo -e "${CYAN}🏷️  Default Badge: $BADGE_DEFAULT${NC}" >&2
+            echo -e "${CYAN}📈  Weekly Badge: $BADGE_WEEKLY${NC}" >&2
+            echo -e "${CYAN}📊  Monthly Badge: $BADGE_MONTHLY${NC}" >&2
+            echo "" >&2
+            log_success "💡 Choose the badge style that fits your README!" >&2
+            echo -e "${BLUE}ℹ️  Activity: ![Git Activity]($BADGE_DEFAULT)${NC}" >&2
+            echo -e "${BLUE}ℹ️  Weekly: ![Weekly Dev]($BADGE_WEEKLY)${NC}" >&2
+            echo -e "${BLUE}ℹ️  Monthly: ![Monthly Overview]($BADGE_MONTHLY)${NC}" >&2
             echo "" >&2
         fi
 

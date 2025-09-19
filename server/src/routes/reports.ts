@@ -3,7 +3,6 @@ import type { CreateReportRequest, CreateReportResponse } from '@/types/report';
 import { ReportService } from '@/services/reportService';
 import { IndexService } from '@/services/indexService';
 import { BadgeService } from '@/services/badgeService';
-import { readFile } from 'fs/promises';
 
 export async function reportRoutes(fastify: FastifyInstance) {
   const reportService = new ReportService();
@@ -207,16 +206,12 @@ export async function reportRoutes(fastify: FastifyInstance) {
         });
       }
 
-      // Generate badge image
-      const badgeFilename = await badgeService.generateBadgeImage(reportHash, content);
-      const badgeImagePath = badgeService.getBadgeImagePath(badgeFilename);
-
-      // Read the image file
-      const imageBuffer = await readFile(badgeImagePath);
+      // Generate badge image with loading support
+      const { buffer: imageBuffer, isLoading } = await badgeService.getBadgeImageWithLoading(reportHash, content, 'default');
 
       // Set appropriate headers for PNG image
       reply.header('Content-Type', 'image/png');
-      reply.header('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+      reply.header('Cache-Control', isLoading ? 'no-cache' : 'public, max-age=3600');
       reply.header('Content-Length', imageBuffer.length);
 
       return reply.send(imageBuffer);
@@ -225,6 +220,108 @@ export async function reportRoutes(fastify: FastifyInstance) {
       return reply.status(500).send({
         error: 'INTERNAL_ERROR',
         message: 'Failed to generate badge image'
+      });
+    }
+  });
+
+  // Generate and serve weekly overview badge for a report
+  fastify.get<{
+    Params: { reportHash: string };
+  }>('/api/reports/:reportHash/badge/weekly', async (request: FastifyRequest<{ Params: { reportHash: string } }>, reply: FastifyReply) => {
+    try {
+      const { reportHash } = request.params;
+
+      // Validate hash format
+      if (!reportHash || !/^[a-f0-9]{32}$/i.test(reportHash)) {
+        return reply.status(400).send({
+          error: 'INVALID_HASH',
+          message: 'Invalid report hash format'
+        });
+      }
+
+      // Check if report exists
+      const reportExists = await reportService.reportExists(reportHash);
+      if (!reportExists) {
+        return reply.status(404).send({
+          error: 'REPORT_NOT_FOUND',
+          message: 'Report not found or has expired'
+        });
+      }
+
+      // Get the report content
+      const content = await reportService.getReport(reportHash);
+      if (!content) {
+        return reply.status(404).send({
+          error: 'REPORT_NOT_FOUND',
+          message: 'Report content not found'
+        });
+      }
+
+      // Generate weekly badge image with loading support
+      const { buffer: imageBuffer, isLoading } = await badgeService.getBadgeImageWithLoading(reportHash, content, 'weekly');
+
+      // Set appropriate headers for PNG image
+      reply.header('Content-Type', 'image/png');
+      reply.header('Cache-Control', isLoading ? 'no-cache' : 'public, max-age=3600');
+      reply.header('Content-Length', imageBuffer.length);
+
+      return reply.send(imageBuffer);
+    } catch (error) {
+      console.error('Error generating weekly badge:', error);
+      return reply.status(500).send({
+        error: 'INTERNAL_ERROR',
+        message: 'Failed to generate weekly badge image'
+      });
+    }
+  });
+
+  // Generate and serve monthly overview badge for a report
+  fastify.get<{
+    Params: { reportHash: string };
+  }>('/api/reports/:reportHash/badge/monthly', async (request: FastifyRequest<{ Params: { reportHash: string } }>, reply: FastifyReply) => {
+    try {
+      const { reportHash } = request.params;
+
+      // Validate hash format
+      if (!reportHash || !/^[a-f0-9]{32}$/i.test(reportHash)) {
+        return reply.status(400).send({
+          error: 'INVALID_HASH',
+          message: 'Invalid report hash format'
+        });
+      }
+
+      // Check if report exists
+      const reportExists = await reportService.reportExists(reportHash);
+      if (!reportExists) {
+        return reply.status(404).send({
+          error: 'REPORT_NOT_FOUND',
+          message: 'Report not found or has expired'
+        });
+      }
+
+      // Get the report content
+      const content = await reportService.getReport(reportHash);
+      if (!content) {
+        return reply.status(404).send({
+          error: 'REPORT_NOT_FOUND',
+          message: 'Report content not found'
+        });
+      }
+
+      // Generate monthly badge image with loading support
+      const { buffer: imageBuffer, isLoading } = await badgeService.getBadgeImageWithLoading(reportHash, content, 'monthly');
+
+      // Set appropriate headers for PNG image
+      reply.header('Content-Type', 'image/png');
+      reply.header('Cache-Control', isLoading ? 'no-cache' : 'public, max-age=3600');
+      reply.header('Content-Length', imageBuffer.length);
+
+      return reply.send(imageBuffer);
+    } catch (error) {
+      console.error('Error generating monthly badge:', error);
+      return reply.status(500).send({
+        error: 'INTERNAL_ERROR',
+        message: 'Failed to generate monthly badge image'
       });
     }
   });

@@ -2,30 +2,67 @@
 
 The Git History Reporter now supports generating beautiful summary badges that can be embedded in GitHub README files and other documentation.
 
-## Endpoint
+## Badge Types
 
+### 🏷️ Default Activity Badge
 ```
 GET /api/reports/{reportHash}/badge
 ```
+Returns a PNG image (320x120 @ 2x resolution) showing activity level, commits, lines added, and contributors.
 
-Returns a PNG image (320x120 @ 2x resolution) summarizing the git activity from the report.
+### 📈 Weekly Development Badge
+```
+GET /api/reports/{reportHash}/badge/weekly
+```
+Returns a PNG image (380x100 @ 2x resolution) with weekly development metrics, trends, and team activity.
+
+### 📊 Monthly Overview Badge
+```
+GET /api/reports/{reportHash}/badge/monthly
+```
+Returns a PNG image (420x120 @ 2x resolution) showing comprehensive monthly development statistics.
 
 ## Usage in GitHub README
 
-After generating and uploading a report, you can embed the badge in your README.md:
+After generating and uploading a report, you can embed any badge type in your README.md:
 
 ```markdown
-![Git Activity Badge](http://localhost:3001/api/reports/d76c1b981a12d02fd71877ebe4d6e8bf/badge)
+<!-- Default Activity Badge -->
+![Git Activity](http://localhost:3001/api/reports/{reportHash}/badge)
+
+<!-- Weekly Development Badge -->
+![Weekly Development](http://localhost:3001/api/reports/{reportHash}/badge/weekly)
+
+<!-- Monthly Overview Badge -->
+![Monthly Overview](http://localhost:3001/api/reports/{reportHash}/badge/monthly)
 ```
 
-## Example Badge
+## Badge Content
 
-The badge displays:
+### 🏷️ Default Activity Badge
 - 📊 **Title**: Git Activity • {Period} (Today, Last Week, etc.)
 - 🔢 **Commits**: Total number of commits
 - ➕ **Lines Added**: Total lines of code added
 - 👥 **Contributors**: Number of unique contributors
 - 🔥 **Activity Level**: Peak, High, Active, Low, or Minimal
+
+### 📈 Weekly Development Badge
+- 📊 **Title**: Weekly Development
+- 📅 **Period**: This week, Last week, Last 7 days
+- 🔢 **Commits**: Total commits for the period
+- 👥 **Contributors**: Number of active contributors
+- 📁 **Files**: Number of files changed
+- 📈 **Trend**: Growth percentage with visual indicator
+
+### 📊 Monthly Overview Badge
+- 📊 **Title**: Monthly Overview
+- 📅 **Period**: This month, Last month, Last 30 days
+- 🔢 **Commits**: Total commits for the period
+- ➕ **Lines Added**: Total lines of code added
+- 👥 **Contributors**: Number of active contributors
+- 📅 **Active Days**: Number of days with commits
+- 🔥 **Activity Level**: Peak, High, Active, Low, or Minimal
+- ⚡ **Velocity**: Average commits per day
 
 ## Activity Levels
 

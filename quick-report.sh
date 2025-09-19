@@ -339,20 +339,28 @@ generate_and_upload_report() {
     if [[ -n "$REPORT_URL" ]]; then
         log_success "Report generated and uploaded successfully!"
 
-        # Extract report hash for badge URL
+        # Extract report hash for badge URLs
         REPORT_HASH=$(echo "$REPORT_URL" | sed 's/.*\/r\///')
-        BADGE_URL="${REPORT_URL%/r/*}/api/reports/$REPORT_HASH/badge"
+        BASE_URL="${REPORT_URL%/r/*}/api/reports/$REPORT_HASH/badge"
+        BADGE_DEFAULT="$BASE_URL"
+        BADGE_WEEKLY="$BASE_URL/weekly"
+        BADGE_MONTHLY="$BASE_URL/monthly"
 
         if [[ "$QUIET" != "true" ]]; then
             echo ""
             log_success "🎉 Your git history report is ready!"
             echo ""
             echo -e "${CYAN}📊 Report URL: $REPORT_URL${NC}"
-            echo -e "${CYAN}🏷️  Badge URL: $BADGE_URL${NC}"
             echo ""
-            log_success "💡 Tip: Use the badge URL in your GitHub README!"
-            echo -e "${BLUE}ℹ️  Markdown: ![Git Activity]($BADGE_URL)${NC}"
-            log_success "⏰ Both URLs will expire automatically for security"
+            echo -e "${CYAN}🏷️  Default Badge: $BADGE_DEFAULT${NC}"
+            echo -e "${CYAN}📈  Weekly Badge: $BADGE_WEEKLY${NC}"
+            echo -e "${CYAN}📊  Monthly Badge: $BADGE_MONTHLY${NC}"
+            echo ""
+            log_success "💡 Choose your preferred badge style for GitHub!"
+            echo -e "${BLUE}ℹ️  Activity: ![Git Activity]($BADGE_DEFAULT)${NC}"
+            echo -e "${BLUE}ℹ️  Weekly: ![Weekly Dev]($BADGE_WEEKLY)${NC}"
+            echo -e "${BLUE}ℹ️  Monthly: ![Monthly Overview]($BADGE_MONTHLY)${NC}"
+            log_success "⏰ All URLs expire automatically for security"
             echo ""
         fi
 

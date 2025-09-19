@@ -13,3 +13,8 @@ debug-git-report.sh
 
 # Debug session output files
 fixed_*.txt
+
+# Generated badge files
+*.png
+server/badges/
+response.tmp

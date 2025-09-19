@@ -200,15 +200,21 @@ upload_to_server() {
 
         # Output the full URLs (this is the main output)
         FULL_URL="$SERVER_URL$REPORT_URL"
-        BADGE_URL="$SERVER_URL/api/reports/$REPORT_HASH/badge"
+        BADGE_DEFAULT="$SERVER_URL/api/reports/$REPORT_HASH/badge"
+        BADGE_WEEKLY="$SERVER_URL/api/reports/$REPORT_HASH/badge/weekly"
+        BADGE_MONTHLY="$SERVER_URL/api/reports/$REPORT_HASH/badge/monthly"
 
         echo "$FULL_URL"
 
-        # Show badge URL in verbose mode or as info
+        # Show badge URLs in verbose mode or as info
         if [ "$VERBOSE" = "true" ]; then
-            log_info "Badge URL: $BADGE_URL"
+            log_info "Default Badge: $BADGE_DEFAULT"
+            log_info "Weekly Badge: $BADGE_WEEKLY"
+            log_info "Monthly Badge: $BADGE_MONTHLY"
         elif [ "$QUIET" != "true" ]; then
-            echo -e "${CYAN}🏷️  Badge: $BADGE_URL${NC}" >&2
+            echo -e "${CYAN}🏷️  Badges: $BADGE_DEFAULT${NC}" >&2
+            echo -e "${CYAN}📈  Weekly: $BADGE_WEEKLY${NC}" >&2
+            echo -e "${CYAN}📊  Monthly: $BADGE_MONTHLY${NC}" >&2
         fi
 
     elif [ "$HTTP_CODE" = "400" ]; then
