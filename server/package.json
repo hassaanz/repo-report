@@ -10,14 +10,17 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint src/**/*.ts",
     "test": "bun test",
-    "test:functionality": "bun run test-functionality.ts"
+    "test:functionality": "bun run test-functionality.ts",
+    "playwright:install": "npx playwright install chromium",
+    "playwright:check": "npx playwright install --dry-run chromium || (echo '❌ Playwright browsers not installed' && echo '💡 Run: bun run playwright:install' && exit 1)",
+    "postinstall": "bun run playwright:check || echo '⚠️  Warning: Playwright browsers need to be installed for badge generation'"
   },
   "dependencies": {
     "@fastify/cors": "^8.4.0",
     "@fastify/static": "^6.12.0",
     "crypto": "^1.0.1",
     "fastify": "^4.24.3",
-    "puppeteer": "^24.22.0"
+    "playwright": "^1.55.0"
   },
   "devDependencies": {
     "@types/node": "^20.8.0",

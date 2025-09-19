@@ -30,6 +30,12 @@ bun run lint
 
 # Type check
 bun run typecheck
+
+# Install Playwright browsers (required for badge generation)
+bun run playwright:install
+
+# Check if Playwright browsers are installed
+bun run playwright:check
 ```
 
 ## Technology Stack
@@ -37,6 +43,7 @@ bun run typecheck
 - **Runtime**: Bun (JavaScript runtime)
 - **Framework**: Fastify (web framework)
 - **Language**: TypeScript
+- **Browser Automation**: Playwright (for badge generation)
 - **Process Management**: Child processes for bash script execution
 - **Templating**: HTML generation from bash script output
 
@@ -71,11 +78,18 @@ server/
 - `GET /api/health` - Server health check endpoint
 - `GET /api/reports/health` - Reports service health with statistics
 - `GET /api/reports/:reportHash/metadata` - Get report metadata
+- `GET /api/reports/:reportHash/badge` - Generate default activity badge (320x120 PNG)
+- `GET /api/reports/:reportHash/badge/weekly` - Generate weekly development badge (380x100 PNG)
+- `GET /api/reports/:reportHash/badge/monthly` - Generate monthly overview badge (420x120 PNG)
 
 ## Features
 
 - **Web Interface**: Beautiful interactive documentation at root URL
 - **Report Storage**: Accept HTML content via API and generate shareable URLs
+- **Badge Generation**: Three types of PNG badges for GitHub README files
+- **Loading States**: Instant loading images while badges generate in background
+- **Browser Automation**: Playwright-powered badge generation with Chromium
+- **Smart Caching**: Content-based caching with proper HTTP headers
 - **Hash-based URLs**: f(reportHash, currentEpoch, expireEpoch) = filename system
 - **Automatic Cleanup**: Reports expire automatically with configurable TTL
 - **Integration Scripts**: Work seamlessly with upload scripts in ../scripts/
@@ -88,14 +102,51 @@ The server works with two main integration scripts:
 ### ../scripts/upload-report.sh
 - Accepts piped HTML content from stdin
 - Uploads to server via POST /api/reports
-- Returns shareable URL with expiration info
+- Returns shareable URL with expiration info and badge URLs
 - Supports custom TTL, server URL, verbose/quiet modes
+- Displays all three badge types with markdown examples
 
 ### ../scripts/generate-and-upload.sh
 - Generates reports using ../bash/git-history-report.sh
 - Pipes output to upload-report.sh
 - Supports all bash script options plus upload options
+- Shows badge URLs for immediate use in README files
 - Dry-run mode for testing
+
+## Badge Generation System
+
+### Playwright Setup
+
+The server uses Playwright for badge generation. Install browsers after installing dependencies:
+
+```bash
+# Install Playwright browsers (required for badge generation)
+bun run playwright:install
+
+# Check if browsers are properly installed
+bun run playwright:check
+```
+
+### Badge Types and Features
+
+1. **Default Activity Badge** (320x120)
+   - Shows activity level, commits, lines added, contributors
+   - Color-coded activity levels: Peak 🔥, High ⚡, Active 📈, Low 📊, Minimal 🧹
+
+2. **Weekly Development Badge** (380x100)
+   - Weekly metrics with trend indicators
+   - Shows commits, contributors, files changed, growth percentage
+
+3. **Monthly Overview Badge** (420x120)
+   - Comprehensive monthly statistics
+   - Includes commits, lines added, contributors, active days, velocity
+
+### Loading and Caching Strategy
+
+- **First Request**: Returns loading image immediately (~1 second)
+- **Background**: Playwright generates high-quality badge
+- **Subsequent Requests**: Returns cached badge (~0.006 seconds)
+- **Cache Headers**: Proper HTTP caching for optimal performance
 
 ## Quick Testing
 
@@ -103,8 +154,11 @@ The server works with two main integration scripts:
 # Test the upload pipeline
 echo '<html><body><h1>Test</h1></body></html>' | ../scripts/upload-report.sh --verbose
 
-# Test full generation and upload
+# Test full generation and upload with badges
 ../scripts/generate-and-upload.sh --preset today --verbose
+
+# Test badge generation directly
+curl http://localhost:3001/api/reports/{reportHash}/badge -o test-badge.png
 
 # Run comprehensive functionality test
 bun run test:functionality

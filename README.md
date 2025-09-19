@@ -63,6 +63,7 @@ If you want to set up the complete system locally:
 ```bash
 cd server
 bun install
+bun run playwright:install  # Install browsers for badge generation
 bun run dev
 ```
 
@@ -106,6 +107,9 @@ Generates comprehensive git history reports with:
 
 TypeScript/Fastify web server providing:
 - **Report Storage**: Secure, short-lived URL generation
+- **Badge Generation**: Beautiful PNG badges for GitHub README files
+- **Multiple Badge Types**: Default activity, weekly development, monthly overview
+- **Smart Caching**: Instant loading images with background generation
 - **Web Interface**: Beautiful documentation and usage guide
 - **RESTful API**: Complete endpoints for report management
 - **Auto-Cleanup**: Automatic expiration of old reports
@@ -114,7 +118,8 @@ TypeScript/Fastify web server providing:
 - **Runtime**: Bun
 - **Framework**: Fastify
 - **Language**: TypeScript
-- **Features**: CORS, health checks, comprehensive error handling
+- **Browser Automation**: Playwright (for badge generation)
+- **Features**: CORS, health checks, comprehensive error handling, badge caching
 
 ### 🔧 Integration Scripts (`scripts/`)
 
@@ -152,6 +157,48 @@ curl -fsSL https://raw.githubusercontent.com/hassaanz/repo-report/main/quick-rep
 # With options
 curl -fsSL https://raw.githubusercontent.com/hassaanz/repo-report/main/quick-report.sh | bash -s -- \
   --preset last-month --detailed --server https://my-server.com
+```
+
+## 🏷️ GitHub README Badges
+
+The system now generates beautiful PNG badges for your GitHub README files! After uploading a report, you get three badge variants:
+
+### Badge Types
+
+1. **🏷️ Default Activity Badge** (320x120) - Activity level, commits, lines added, contributors
+2. **📈 Weekly Development Badge** (380x100) - Weekly metrics with trend indicators
+3. **📊 Monthly Overview Badge** (420x120) - Comprehensive monthly statistics
+
+### Usage in README.md
+
+```markdown
+<!-- Default Activity Badge -->
+![Git Activity](http://localhost:3001/api/reports/{reportHash}/badge)
+
+<!-- Weekly Development Badge -->
+![Weekly Development](http://localhost:3001/api/reports/{reportHash}/badge/weekly)
+
+<!-- Monthly Overview Badge -->
+![Monthly Overview](http://localhost:3001/api/reports/{reportHash}/badge/monthly)
+```
+
+### Badge Features
+
+- ⚡ **Instant Loading**: Loading images served immediately (~1 second)
+- 🎨 **High Quality**: Final badges generated with Playwright
+- 🏃 **Fast Caching**: Cached badges served in ~0.006 seconds
+- 🎯 **Activity Levels**: Color-coded based on commit activity (Peak 🔥, High ⚡, Active 📈, Low 📊, Minimal 🧹)
+- 📊 **Rich Metrics**: Commits, contributors, lines changed, trends, velocity
+
+### Automated Badge Updates
+
+```yaml
+# GitHub Actions example
+- name: Update Git Activity Badge
+  run: |
+    URL=$(./scripts/generate-and-upload.sh --preset yesterday --quiet)
+    HASH=$(echo "$URL" | sed 's/.*\/r\///')
+    echo "![Git Activity](${URL/\/r\//\/api\/reports\/}/badge)" >> README.md
 ```
 
 ## 📖 Usage Examples
